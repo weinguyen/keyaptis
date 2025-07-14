@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aptis Quiz</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+  <div class="container">
+    <header>
+      <h1>Aptis Quiz</h1>
+      <div class="quiz-info">
+        <span id="current-question">Question 1</span>
+        <span id="total-questions">of 150</span>
+        <span id="score">Score: 0</span>
+      </div>
+    </header>
+
+    <main>
+      <div id="quiz-container">
+        <div class="question-card">
+          <div class="question-number">
+            <span id="question-num">1</span>
+          </div>
+
+          <div class="question-content">
+            <h2 id="question-text">Loading question...</h2>
+
+            <div class="audio-section" id="audio-section" style="display: none;">
+              <div class="audio-transcript" id="audio-transcript"></div>
+            </div>
+
+            <div class="options" id="options-container">
+              <!-- Options will be dynamically generated -->
+            </div>
+          </div>
+
+          <div class="question-actions">
+            <button id="show-transcript" class="btn-secondary">Show Transcript</button>
+            <button id="submit-answer" class="btn-primary" disabled>Submit Answer</button>
+          </div>
+        </div>
+
+        <div class="navigation">
+          <button id="prev-btn" class="btn-nav" disabled>Previous</button>
+          <button id="shuffle-btn" class="btn-nav">Shuffle</button>
+          <button id="next-btn" class="btn-nav">Next</button>
+        </div>
+      </div>
+
+      <div id="result-container" style="display: none;">
+        <div class="result-card">
+          <h2>Quiz Completed!</h2>
+          <div class="final-score">
+            <span id="final-score">0</span> / <span id="total-score">150</span>
+          </div>
+          <div class="percentage">
+            <span id="percentage">0%</span>
+          </div>
+          <button id="restart-btn" class="btn-primary">Restart Quiz</button>
+          <button id="shuffle-btn" class="btn-nav">Shuffle</button>
+          <button id="review-btn" class="btn-secondary">Review Answers</button>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+
+</html>
