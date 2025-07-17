@@ -316,3 +316,143 @@ header h1 {
 .option.selected {
     animation: pulse 0.3s ease;
 }
+
+/* Add to your existing CSS file */
+.part-selector {
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.part-selector h3 {
+    margin: 0 0 15px 0;
+    color: #495057;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.part-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.part-btn {
+    background: #ffffff;
+    border: 2px solid #dee2e6;
+    border-radius: 6px;
+    padding: 10px 15px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #495057;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    min-width: 140px;
+}
+
+.part-btn:hover {
+    background: #e9ecef;
+    border-color: #adb5bd;
+}
+
+.part-btn.active {
+    background: #007bff;
+    border-color: #007bff;
+    color: white;
+}
+
+.part-btn.active:hover {
+    background: #0056b3;
+    border-color: #0056b3;
+}
+
+.part-info {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 15px 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.current-part {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.question-count {
+    background: rgba(255, 255, 255, 0.2);
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+}
+
+.selection-message {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: #28a745;
+    color: white;
+    padding: 15px 20px;
+    border-radius: 6px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    z-index: 1000;
+    animation: slideIn 0.3s ease;
+}
+
+.selection-message .message-content {
+    text-align: center;
+    font-weight: 500;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+.result-header {
+    text-align: center;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid #dee2e6;
+}
+
+.result-header h2 {
+    color: #495057;
+    margin: 0;
+}
+
+/* Responsive design for mobile */
+@media (max-width: 768px) {
+    .part-buttons {
+        flex-direction: column;
+    }
+
+    .part-btn {
+        width: 100%;
+        min-width: auto;
+    }
+
+    .current-part {
+        flex-direction: column;
+        text-align: center;
+        gap: 8px;
+    }
+
+    .selection-message {
+        top: 10px;
+        right: 10px;
+        left: 10px;
+    }
+}

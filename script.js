@@ -1,15 +1,20 @@
 class EnglishQuiz {
     constructor() {
+        this.allQuestions = [];
         this.questions = [];
         this.currentQuestionIndex = 0;
         this.score = 0;
         this.userAnswers = [];
         this.isTranscriptVisible = false;
+        this.currentPart = 'all'; // Track current selected part
+        this.totalQuestions = 0;
 
         this.initializeQuestions();
         this.initializeEventListeners();
+        this.initializePartSelector();
         this.displayQuestion();
     }
+
     shuffleQuestions() {
         // Fisher-Yates shuffle algorithm
         for (let i = this.questions.length - 1; i > 0; i--) {
@@ -19,7 +24,7 @@ class EnglishQuiz {
     }
     initializeQuestions() {
         // Complete dataset from your CSV file
-        const rawData = [
+        const part1Questions = [
             {
                 id: 1,
                 question: "A woman is talking to her coworker. When does the meeting start?",
@@ -350,6 +355,8 @@ class EnglishQuiz {
                 correct: 1,
                 transcript: "Student 1: Are you excited about studying abroad next semester? Student 2: Yes! I can't wait to go to France and practice my French."
             },
+        ];
+        const part2Questions = [
             {
                 id: 48,
                 question: "A woman is talking about her house. What is she going to change in her house?",
@@ -682,6 +689,8 @@ class EnglishQuiz {
                 correct: 1,
                 transcript: "Student: I'm looking for the teacher's building. Can you describe it? Other Student: It's the big building with the white walls, you can't miss it."
             },
+        ];
+        const part3Questions = [
             {
                 id: 95,
                 question: "Jorge is calling his friend about their plan for the weekend. What time does the football match start?",
@@ -1011,6 +1020,8 @@ class EnglishQuiz {
                 correct: 1,
                 transcript: "Man: How was the new restaurant? Woman: The food was okay, but the service was so slow. We waited almost an hour for our main course."
             },
+        ]
+        const part4Questions = [
             {
                 id: 142,
                 question: "What is his opinion about sea transport?",
@@ -1340,6 +1351,8 @@ class EnglishQuiz {
                 correct: 1,
                 transcript: "Man: You know, when I think about my favorite room in the house, it’s kind of hard to choose. I mean, I really enjoy the kitchen since I love cooking, and the living room is great for hanging out with friends. But honestly, I have to say the bathroom is my favorite! It might sound strange, but it’s the one place where I can truly relax."
             },
+        ]
+        const part5Questions = [
             {
                 id: 189,
                 question: "A woman is talking about her family’s holidays. What did the family do last year?",
@@ -1663,62 +1676,198 @@ class EnglishQuiz {
                 transcript: "You want to save some money, right? Well, there are a few things you can do. One idea is to buy in bulk, so you pay less for each item. But, the best tip I have is to use public transport instead of driving. It really helps to cut down on gas and parking costs. You could also put some money into the bank to save for later, but start with public transport—it’s a big help!"
             }
         ];
+        this.questionParts = {
+            'part1': part1Questions,
+            'part2': part2Questions,
+            'part3': part3Questions,
+            'part4': part4Questions,
+            'part5': part5Questions
+        };
 
-        this.questions = rawData;
+        // Combine all questions for 'all' option
+        this.allQuestions = [
+            ...part1Questions,
+            ...part2Questions,
+            ...part3Questions,
+            ...part4Questions,
+            ...part5Questions
+        ];
+
+        this.questions = [...this.allQuestions];
         this.totalQuestions = this.questions.length;
         this.shuffleQuestions();
 
         // Update total questions display
         document.getElementById('total-questions').textContent = `of ${this.totalQuestions}`;
     }
+    initializePartSelector() {
+        // Create part selector if it doesn't exist
+        let partSelector = document.getElementById('part-selector');
+        if (!partSelector) {
+            partSelector = document.createElement('div');
+            partSelector.id = 'part-selector';
+            partSelector.className = 'part-selector';
+            partSelector.innerHTML = `
+                <h3>Chọn phần bài thi:</h3>
+                <div class="part-buttons">
+                    <button class="part-btn active" data-part="all">Tất cả (234 câu)</button>
+                    <button class="part-btn" data-part="part1">Phần 1 (Câu 1-47)</button>
+                    <button class="part-btn" data-part="part2">Phần 2 (Câu 48-94)</button>
+                    <button class="part-btn" data-part="part3">Phần 3 (Câu 95-141)</button>
+                    <button class="part-btn" data-part="part4">Phần 4 (Câu 142-188)</button>
+                    <button class="part-btn" data-part="part5">Phần 5 (Câu 189-234)</button>
+                </div>
+            `;
 
-    initializeEventListeners() {
-        document.getElementById('show-transcript').addEventListener('click', () => this.toggleTranscript());
-        document.getElementById('submit-answer').addEventListener('click', () => this.submitAnswer());
-        document.getElementById('prev-btn').addEventListener('click', () => this.previousQuestion());
-        document.getElementById('next-btn').addEventListener('click', () => this.nextQuestion());
-        document.getElementById('restart-btn').addEventListener('click', () => this.restartQuiz());
-        document.getElementById('review-btn').addEventListener('click', () => this.reviewAnswers());
-
-        // Add shuffle button if it exists
-        const shuffleBtn = document.getElementById('shuffle-btn');
-        if (shuffleBtn) {
-            shuffleBtn.addEventListener('click', () => this.restartQuiz(true));
+            // Insert before quiz container
+            const quizContainer = document.getElementById('quiz-container');
+            quizContainer.parentNode.insertBefore(partSelector, quizContainer);
         }
 
-        // Add keyboard navigation
-        document.addEventListener('keydown', (e) => this.handleKeyPress(e));
+        // Add event listeners for part buttons
+        document.querySelectorAll('.part-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                this.selectPart(e.target.dataset.part);
+            });
+        });
     }
-    handleKeyPress(e) {
-        switch (e.key) {
-            case '1':
-            case '2':
-            case '3':
-                const optionIndex = parseInt(e.key) - 1;
-                if (optionIndex < this.questions[this.currentQuestionIndex].options.length) {
-                    this.selectOption(optionIndex);
-                }
-                break;
-            case 'Enter':
-                if (!document.getElementById('submit-answer').disabled) {
-                    this.submitAnswer();
-                }
-                break;
-            case 'ArrowLeft':
-                if (!document.getElementById('prev-btn').disabled) {
-                    this.previousQuestion();
-                }
-                break;
-            case 'ArrowRight':
-                if (!document.getElementById('next-btn').disabled) {
-                    this.nextQuestion();
-                }
-                break;
-            case ' ':
-                e.preventDefault();
-                this.toggleTranscript();
-                break;
+
+    selectPart(partName) {
+        // Update active button
+        document.querySelectorAll('.part-btn').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        document.querySelector(`[data-part="${partName}"]`).classList.add('active');
+
+        // Update current part
+        this.currentPart = partName;
+
+        // Reset quiz state
+        this.currentQuestionIndex = 0;
+        this.score = 0;
+        this.userAnswers = [];
+
+        // Load questions for selected part
+        if (partName === 'all') {
+            this.questions = [...this.allQuestions];
+        } else {
+            this.questions = [...this.questionParts[partName]];
         }
+
+        // Shuffle and update
+        this.shuffleQuestions();
+        this.totalQuestions = this.questions.length;
+
+        // Update UI
+        document.getElementById('score').textContent = 'Score: 0';
+        document.getElementById('total-questions').textContent = `of ${this.totalQuestions}`;
+
+        // Update part info display
+        this.updatePartInfo();
+
+        // Display first question
+        this.displayQuestion();
+
+        // Show success message
+        this.showPartSelectionMessage(partName);
+    }
+
+    updatePartInfo() {
+        // Create or update part info display
+        let partInfo = document.getElementById('part-info');
+        if (!partInfo) {
+            partInfo = document.createElement('div');
+            partInfo.id = 'part-info';
+            partInfo.className = 'part-info';
+
+            const quizContainer = document.getElementById('quiz-container');
+            quizContainer.insertBefore(partInfo, quizContainer.firstChild);
+        }
+
+        const partNames = {
+            'all': 'Tất cả các phần',
+            'part1': 'Phần 1',
+            'part2': 'Phần 2',
+            'part3': 'Phần 3',
+            'part4': 'Phần 4',
+            'part5': 'Phần 5'
+        };
+
+        partInfo.innerHTML = `
+            <div class="current-part">
+                <strong>Đang làm: ${partNames[this.currentPart]}</strong>
+                <span class="question-count">(${this.totalQuestions} câu hỏi)</span>
+            </div>
+        `;
+    }
+
+    showPartSelectionMessage(partName) {
+        const partNames = {
+            'all': 'tất cả các phần',
+            'part1': 'Phần 1 (Câu 1-47)',
+            'part2': 'Phần 2 (Câu 48-94)',
+            'part3': 'Phần 3 (Câu 95-141)',
+            'part4': 'Phần 4 (Câu 142-188)',
+            'part5': 'Phần 5 (Câu 189-234)'
+        };
+
+        // Create temporary message
+        const message = document.createElement('div');
+        message.className = 'selection-message';
+        message.innerHTML = `
+            <div class="message-content">
+                ✓ Đã chọn ${partNames[partName]}
+                <br>
+                <small>${this.totalQuestions} câu hỏi</small>
+            </div>
+        `;
+
+        document.body.appendChild(message);
+
+        // Remove message after 2 seconds
+        setTimeout(() => {
+            document.body.removeChild(message);
+        }, 2000);
+    }
+
+    shuffleQuestions() {
+        // Fisher-Yates shuffle algorithm
+        for (let i = this.questions.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [this.questions[i], this.questions[j]] = [this.questions[j], this.questions[i]];
+        }
+    }
+
+    // Update restart method to maintain current part selection
+    restartQuiz(shouldShuffle = false) {
+        this.currentQuestionIndex = 0;
+        this.score = 0;
+        this.userAnswers = [];
+        this.reviewMode = false;
+
+        // Shuffle questions if requested, but keep current part
+        if (shouldShuffle) {
+            this.shuffleQuestions();
+        }
+
+        document.getElementById('score').textContent = 'Score: 0';
+        document.getElementById('quiz-container').style.display = 'block';
+        document.getElementById('result-container').style.display = 'none';
+        document.getElementById('submit-answer').style.display = 'block';
+
+        this.displayQuestion();
+    }
+
+    // Add method to get current part statistics
+    getPartStatistics() {
+        const stats = {
+            currentPart: this.currentPart,
+            totalQuestions: this.totalQuestions,
+            currentScore: this.score,
+            answeredQuestions: this.userAnswers.filter(answer => answer !== undefined).length,
+            percentage: this.totalQuestions > 0 ? Math.round((this.score / this.totalQuestions) * 100) : 0
+        };
+        return stats;
     }
 
     displayQuestion() {
@@ -1827,8 +1976,12 @@ class EnglishQuiz {
         // Disable submit button
         document.getElementById('submit-answer').disabled = true;
 
-        // Auto advance after 2 seconds
-
+        // Check if this is the last question
+        if (this.currentQuestionIndex === this.questions.length - 1) {
+            setTimeout(() => {
+                this.showResults();
+            }, 1500);
+        }
     }
 
     toggleTranscript() {
@@ -1875,18 +2028,38 @@ class EnglishQuiz {
         document.getElementById('total-score').textContent = this.questions.length;
         document.getElementById('percentage').textContent = `${percentage}%`;
 
+        // Add part information to results
+        const partNames = {
+            'all': 'Tất cả các phần',
+            'part1': 'Phần 1 (Câu 1-47)',
+            'part2': 'Phần 2 (Câu 48-94)',
+            'part3': 'Phần 3 (Câu 95-141)',
+            'part4': 'Phần 4 (Câu 142-188)',
+            'part5': 'Phần 5 (Câu 189-234)'
+        };
+
+        // Update result display with part info
+        let resultHeader = document.querySelector('.result-header');
+        if (!resultHeader) {
+            resultHeader = document.createElement('div');
+            resultHeader.className = 'result-header';
+            document.getElementById('result-container').insertBefore(resultHeader, document.getElementById('result-container').firstChild);
+        }
+
+        resultHeader.innerHTML = `<h2>Kết quả - ${partNames[this.currentPart]}</h2>`;
+
         // Add performance feedback
         let feedback = '';
         if (percentage >= 90) {
-            feedback = 'Excellent! Outstanding performance!';
+            feedback = 'Xuất sắc! Thành tích tuyệt vời!';
         } else if (percentage >= 80) {
-            feedback = 'Very good! Well done!';
+            feedback = 'Rất tốt! Làm tốt lắm!';
         } else if (percentage >= 70) {
-            feedback = 'Good job! Keep practicing!';
+            feedback = 'Tốt! Hãy tiếp tục luyện tập!';
         } else if (percentage >= 60) {
-            feedback = 'Fair performance. Review the materials and try again.';
+            feedback = 'Khá. Hãy ôn tập lại và thử lần nữa.';
         } else {
-            feedback = 'Keep studying and practice more. You can do better!';
+            feedback = 'Cần cố gắng hơn. Hãy học thêm và luyện tập nhiều hơn!';
         }
 
         const feedbackElement = document.getElementById('performance-feedback');
@@ -1895,24 +2068,56 @@ class EnglishQuiz {
         }
     }
 
-    restartQuiz(shouldShuffle = false) {
-        this.currentQuestionIndex = 0;
-        this.score = 0;
-        this.userAnswers = [];
-        this.reviewMode = false;
+    initializeEventListeners() {
+        document.getElementById('show-transcript').addEventListener('click', () => this.toggleTranscript());
+        document.getElementById('submit-answer').addEventListener('click', () => this.submitAnswer());
+        document.getElementById('prev-btn').addEventListener('click', () => this.previousQuestion());
+        document.getElementById('next-btn').addEventListener('click', () => this.nextQuestion());
+        document.getElementById('restart-btn').addEventListener('click', () => this.restartQuiz());
+        document.getElementById('review-btn').addEventListener('click', () => this.reviewAnswers());
 
-        // Shuffle questions if requested
-        if (shouldShuffle) {
-            this.shuffleQuestions();
+        // Add shuffle button if it exists
+        const shuffleBtn = document.getElementById('shuffle-btn');
+        if (shuffleBtn) {
+            shuffleBtn.addEventListener('click', () => this.restartQuiz(true));
         }
 
-        document.getElementById('score').textContent = 'Score: 0';
-        document.getElementById('quiz-container').style.display = 'block';
-        document.getElementById('result-container').style.display = 'none';
-        document.getElementById('submit-answer').style.display = 'block';
-
-        this.displayQuestion();
+        // Add keyboard navigation
+        document.addEventListener('keydown', (e) => this.handleKeyPress(e));
     }
+
+    handleKeyPress(e) {
+        switch (e.key) {
+            case '1':
+            case '2':
+            case '3':
+                const optionIndex = parseInt(e.key) - 1;
+                if (optionIndex < this.questions[this.currentQuestionIndex].options.length) {
+                    this.selectOption(optionIndex);
+                }
+                break;
+            case 'Enter':
+                if (!document.getElementById('submit-answer').disabled) {
+                    this.submitAnswer();
+                }
+                break;
+            case 'ArrowLeft':
+                if (!document.getElementById('prev-btn').disabled) {
+                    this.previousQuestion();
+                }
+                break;
+            case 'ArrowRight':
+                if (!document.getElementById('next-btn').disabled) {
+                    this.nextQuestion();
+                }
+                break;
+            case ' ':
+                e.preventDefault();
+                this.toggleTranscript();
+                break;
+        }
+    }
+
     reviewAnswers() {
         // Implementation for reviewing answers
         this.currentQuestionIndex = 0;
@@ -1949,40 +2154,6 @@ class EnglishQuiz {
             document.getElementById('submit-answer').style.display = 'none';
         }
     }
-
-    // Method to load questions from external data source
-    loadQuestionsFromData(data) {
-        // This method can be used to load questions from parsed CSV data
-        this.questions = data;
-        this.totalQuestions = this.questions.length;
-        document.getElementById('total-questions').textContent = `of ${this.totalQuestions}`;
-        this.displayQuestion();
-    }
-
-    // Search and filter functionality
-    filterQuestionsByTopic(topic) {
-        // Implementation for filtering questions by topic
-        // This can be extended based on your data structure
-    }
-
-    // Export results functionality
-    exportResults() {
-        const results = {
-            totalQuestions: this.questions.length,
-            score: this.score,
-            percentage: Math.round((this.score / this.questions.length) * 100),
-            answers: this.userAnswers,
-            timestamp: new Date().toISOString()
-        };
-
-        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(results, null, 2));
-        const downloadAnchorNode = document.createElement('a');
-        downloadAnchorNode.setAttribute("href", dataStr);
-        downloadAnchorNode.setAttribute("download", "quiz_results.json");
-        document.body.appendChild(downloadAnchorNode);
-        downloadAnchorNode.click();
-        downloadAnchorNode.remove();
-    }
 }
 
 // Enhanced initialization with error handling
@@ -1994,13 +2165,3 @@ document.addEventListener('DOMContentLoaded', () => {
         document.body.innerHTML = '<div class="error">Error loading quiz. Please refresh the page.</div>';
     }
 });
-
-// Helper function to parse CSV data into question format
-function parseCSVToQuestions(csvData) {
-    const questions = [];
-    // Implementation to parse your CSV data structure
-    // This would extract questions, options, answers, and transcripts
-    // from your uploaded file format
-
-    return questions;
-}
